@@ -1,10 +1,8 @@
 import kotlin.io.path.Path
 import kotlin.io.path.readText
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
 
-suspend fun main() {
-    suspend fun part1(input: String): Long {
+fun main() {
+    fun part1(input: String): Long {
         val maps = input.split("\n\n")
                 .map { m -> m.split(":") }
 
@@ -28,15 +26,27 @@ suspend fun main() {
                                     .map { r -> Pair(r.first(), r.last()) })
                 }
 
-        val solution = seeds.asFlow().map { s ->
+        val solution = seeds.asSequence().map { s ->
             sourceDest.fold(s) { d, m ->
-                m.second.asFlow().map { (dest, src) ->
-                    val index = src.toList().binarySearch(d)
-                    if (index >= 0) {
-                        dest.elementAt(src.indexOf(d))
+                m.second.asSequence().map { (dest, src) ->
+                    val half = (src.count() / 2)
+                    if (d >= src.first && d <= src.last) {
+                        
+                        var index = src.toList().binarySearch(d, toIndex=half)
+                        
+                        if (index <= 0) {
+                            index = src.toList().binarySearch(d, fromIndex=half)
+                        }
+                        
+                        if (index >= 0) {
+                            dest.elementAt(src.indexOf(d))
+                        } else {
+                            d
+                        }
                     } else {
-                        d
-                    }
+                            d
+                        }
+                    
                 }.firstOrNull { it != d } ?: d
             }
         }.toList().minOf { it }
@@ -54,6 +64,6 @@ suspend fun main() {
     // check(part2(testInput) == 1)
 
     val input = Path("input/Day05.txt").readText()
-    part1(input).println()
+   part1(input).println()
     //  part2(input).println()
 }
