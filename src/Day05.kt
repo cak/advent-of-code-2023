@@ -29,24 +29,11 @@ fun main() {
         val solution = seeds.asSequence().map { s ->
             sourceDest.fold(s) { d, m ->
                 m.second.asSequence().map { (dest, src) ->
-                    val half = (src.count() / 2)
                     if (d >= src.first && d <= src.last) {
-                        
-                        var index = src.toList().binarySearch(d, toIndex=half)
-                        
-                        if (index <= 0) {
-                            index = src.toList().binarySearch(d, fromIndex=half)
-                        }
-                        
-                        if (index >= 0) {
-                            dest.elementAt(src.indexOf(d))
-                        } else {
-                            d
-                        }
+                        (dest.first - src.first) + d
                     } else {
-                            d
-                        }
-                    
+                        d
+                    }
                 }.firstOrNull { it != d } ?: d
             }
         }.toList().minOf { it }
